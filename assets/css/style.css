@@ -1,4 +1,11 @@
-
+body {
+	background-image:url("../images/bigtrain.jpg");
+}
 .card {
     margin-bottom:1rem;
+}
+
+.jumbotron, .card-header-title, .btn-primary {
+    background-color:#5b86bd;
+    color:#fff;
 }
