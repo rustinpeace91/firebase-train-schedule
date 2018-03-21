@@ -9,28 +9,29 @@
     messagingSenderId: "1062976683679"
   };
   firebase.initializeApp(config);
-
+  //variable that holds the reference to the database
   var dbRef = firebase.database();
 
-
+//calculates the next train time, and the minutes away. 
+//returns either variables depending on the value passed to the parameter "type"
 function nextTrain(freq, first, type) {
-  //var first = moment(first, "HH:mm");
+  //current time
   var now = moment();
-  //console.log(now.format("HH:mm"));
+  //parses the first train time in moment
   var first = moment(first, "HH:mm");
   var freq = freq;
+  //if the current train is before the first train on the 24 hour time scale
+  //returns the first trains time and minutes away
+  //assumes all trains stop at midnight.  
   if(now.isBefore(moment(first, "HH:mm"))) {
-    //will print from current time to the first
-    //console.log("no way");
+
     var minutesAway = first.diff(now, "minutes");
     var result = first.format("HH:mm");
   } else {
     var result = now.format("HH:mm") + " " + first.format("HH:mm");
-    //duration in minutes that the train runs in total
-    //(24 * 60) - (first.diff(moment(0000, "HH:mm"), "minutes"));
-    var duration = now.diff(first, "minutes")
-    //console.log("duration = " + duration)
-    //console.log("minutes away = " + (freq - (duration % freq)) )
+    //calcualtes the amount of minutes that have passed between the first train time and now
+    var duration = now.diff(first, "minutes") 
+    //calculates the minutes away by subtracting the duration % freq from frequency
     var minutesAway = freq - (duration % freq);
     result = moment().add(minutesAway, "minutes").format("h:mm a");
   }
@@ -47,8 +48,11 @@ $(document).ready(function(){
   dbRef.ref().on("child_added", function(childSnapshot){
     var childFreq = childSnapshot.val().frequency;
     var childFirst = childSnapshot.val().first;
+    //gets hte next train by running the function with the parameter "next_arrival"
     var next = nextTrain(childFreq, childFirst, "next_arrival");
+    //gets the minutes away by running the same function with a different parameter 
     var minutesFrom = nextTrain(childFreq, childFirst, "minutes_away")
+    //adds a table row
     var row = $("<tr>");
     row.append("<td>" + childSnapshot.val().name);
     row.append("<td>" + childSnapshot.val().destination);
@@ -58,11 +62,9 @@ $(document).ready(function(){
     $("#train-table tbody").append(row);
   });
 
-
+  //runs when the user hits the submit button. Grabs the data from the fields and pushes it into the database 
   $("#submit-data").on("click", function(event){
-    console.log("running");
     event.preventDefault();
-
     var trainName = $("#train-name").val().trim();
     var destination = $("#destination").val().trim();
     var firstTime = $("#first-train-time").val().trim();
@@ -86,4 +88,3 @@ $(document).ready(function(){
 
 
 });
-console.log("js working");
