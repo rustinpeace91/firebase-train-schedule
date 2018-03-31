@@ -44,6 +44,24 @@ function nextTrain(freq, first, type) {
  
 }
 
+//makes sure the time is in the right format
+function isTime(firstTime) {
+  var time = firstTime.split(":");
+  var hours = parseInt(time[0]);
+  var minutes = parseInt(time[1]);
+  var both = time[0] + time[1]
+  console.log(both);
+  if(isNaN(hours) || isNaN(minutes)){
+    return false;
+
+  } else if(moment(both, "HH:mm").isValid() === false) {
+    return false;
+  } else {
+    return true;
+  }
+
+}
+
 $(document).ready(function(){
   dbRef.ref().on("child_added", function(childSnapshot){
     var childFreq = childSnapshot.val().frequency;
@@ -69,6 +87,9 @@ $(document).ready(function(){
     var destination = $("#destination").val().trim();
     var firstTime = $("#first-train-time").val().trim();
     var frequency = $("#frequency").val().trim();
+    if( !isTime(firstTime) || isNaN(frequency)){
+      alertify.error("formatting error:times must be valid numbers");
+    } else {
 
     var trainEntry = {
       name: trainName,
@@ -83,6 +104,8 @@ $(document).ready(function(){
     $("#first-train-time").val("");
     $("#frequency").val("");
     $("#train-name").val("");
+
+    }
 
   });
 
